@@ -58,26 +58,28 @@ public class tcpservice
         private BufferedReader    mBufferedReader;
         private PrintWriter       mPrintWriter;
         private String            mStrMSG;
-	   // client specific flag to indicate whether the user name is accepted
-	   private boolean registered = false;
+        // client specific flag to indicate whether the user name is accepted
+        private boolean registered = false;
+        // client specific user name
+        private String            UserName;
         public ThreadServer(Socket socket) throws IOException
         {
             this.mSocket = socket;
             mBufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		mPrintWriter = new PrintWriter(socket.getOutputStream(), true);
-
-		while(!registered){
+            mPrintWriter = new PrintWriter(socket.getOutputStream(), true);
+    		while(!registered){
 				while((mStrMSG = mBufferedReader.readLine()) != null){
-				if(UserNameList.contains(mStrMSG.trim())){
-           mPrintWriter.println("User Name Already Exist\n");
+                    if(UserNameList.contains(mStrMSG.trim())){
+                        mPrintWriter.println("User Name Already Exist\n");
 					}else{
-			registered = true;
-		mPrintWriter.println("Welcome to the chat room\n");
-		UserNameList.add(mStrMSG.trim());
+                        registered = true;
+		                mPrintWriter.println("Welcome to the chat room\n");
+                        UserName = mStrMSG.trim();
+                        UserNameList.add(UserName);
 					}
 				}
 			}
-            mStrMSG = "user:"+this.mSocket.getInetAddress()+" come total:" + mClientList.size();
+            mStrMSG = "user("+UserName+"):"+this.mSocket.getInetAddress()+" come total:" + mClientList.size();
             sendMessage();
         }
         public void run()
@@ -92,14 +94,15 @@ public class tcpservice
                         mClientList.remove(mSocket);
                         mBufferedReader.close();
                         mPrintWriter.close();
-                        mStrMSG = "user:"+this.mSocket.getInetAddress()+" exit total:" + mClientList.size();
+                        mStrMSG = "user("+UserName+"):"+this.mSocket.getInetAddress()+" exit total:" + mClientList.size();
                         mSocket.close();
+                        UserNameList.remove(UserName);
                         sendMessage();
                         break;
                     }
                     else
                     {
-                        mStrMSG = mSocket.getInetAddress() + ":" + mStrMSG;
+                        mStrMSG = "user("+UserName+"):"+mSocket.getInetAddress() + ":" + mStrMSG;
                         sendMessage();
                     }
                 }
