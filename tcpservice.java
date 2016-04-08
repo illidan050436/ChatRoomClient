@@ -67,43 +67,42 @@ public class tcpservice
             this.mSocket = socket;
             mBufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             mPrintWriter = new PrintWriter(socket.getOutputStream(), true);
-    		while(!registered){
-				while((mStrMSG = mBufferedReader.readLine()) != null){
-                    if(UserNameList.contains(mStrMSG.trim())){
-                        mPrintWriter.println("User Name Already Exist\n");
-					}else{
-                        registered = true;
-		                mPrintWriter.println("Welcome to the chat room\n");
-                        UserName = mStrMSG.trim();
-                        UserNameList.add(UserName);
-					}
-				}
-			}
-            mStrMSG = "user("+UserName+"):"+this.mSocket.getInetAddress()+" come total:" + mClientList.size();
-            sendMessage();
         }
         public void run()
         {
             try
             {
-			while ((mStrMSG = mBufferedReader.readLine()) != null)
+         		while ((mStrMSG = mBufferedReader.readLine()) != null)
                 {
-                    if (mStrMSG.trim().equals("client_exit"))
-                    {
-                        // when a client exit
-                        mClientList.remove(mSocket);
-                        mBufferedReader.close();
-                        mPrintWriter.close();
-                        mStrMSG = "user("+UserName+"):"+this.mSocket.getInetAddress()+" exit total:" + mClientList.size();
-                        mSocket.close();
-                        UserNameList.remove(UserName);
-                        sendMessage();
-                        break;
-                    }
-                    else
-                    {
-                        mStrMSG = "user("+UserName+"):"+mSocket.getInetAddress() + ":" + mStrMSG;
-                        sendMessage();
+                    if (!registered){
+                        if (UserNameList.contains(mStrMSG.trim())){
+                            mStrMSG =  "user("+UserName+"):"+this.mSocket.getInetAddress()+" name already exist.";
+                            sendMessage();
+                        }else{
+                            registered = true;
+                            UserName = mStrMSG.trim();
+                            UserNameList.add(UserName);
+                            mStrMSG =  "Welcome user("+UserName+"):"+this.mSocket.getInetAddress()+" to the chat room.";
+                            sendMessage();
+                        }
+                    }else{
+                       if (mStrMSG.trim().equals("client_exit"))
+                        {
+                            // when a client exit
+                            mClientList.remove(mSocket);
+                            mBufferedReader.close();
+                            mPrintWriter.close();
+                            mStrMSG = "user("+UserName+"):"+this.mSocket.getInetAddress()+" exit total:" + mClientList.size();
+                            mSocket.close();
+                            UserNameList.remove(UserName);
+                            sendMessage();
+                            break;
+                        }
+                        else
+                        {
+                            mStrMSG = "user("+UserName+"):"+mSocket.getInetAddress() + ":" + mStrMSG;
+                            sendMessage();
+                        }
                     }
                 }
             }

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,8 +20,9 @@ import java.net.Socket;
 public class mobileclient extends AppCompatActivity {
     // global declaration
     private Button RegisterButton, SendButton, ExitButton;
-    private static EditText InputText, OutputText;
-    private static final String SERVERIP = "172.16.1.27";
+    private static EditText InputText;
+    private static EditText OutputText;
+    private static final String SERVERIP = "192.168.137.1";
     private static final int SERVERPORT = 9054;
     private Thread mThread = null;
     private Socket mSocket = null;
@@ -36,8 +38,8 @@ public class mobileclient extends AppCompatActivity {
         RegisterButton = (Button)findViewById(R.id.button);
         SendButton = (Button)findViewById(R.id.button2);
         ExitButton = (Button)findViewById(R.id.button3);
-        InputText = (EditText)findViewById(R.id.editText);
-        OutputText = (EditText)findViewById(R.id.editText2);
+        InputText = (EditText)findViewById(R.id.editText2);
+        OutputText = (EditText)findViewById(R.id.editText);
 
         // Register user name
         RegisterButton.setOnClickListener(new View.OnClickListener() {
@@ -71,7 +73,7 @@ public class mobileclient extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     // send the special client exit instruction to the server
-                    String str = "client_exit";
+                    String str = "client_exit\n";
                     mPrintWriter.print(str);
                     mPrintWriter.flush();
                 }catch(Exception e) {
@@ -122,9 +124,11 @@ public class mobileclient extends AppCompatActivity {
         @Override
         protected Object doInBackground(Object[] params) {
             try {
+                Log.e("Task", "connecting");
                 // create the client socket
                 mSocket = new Socket(SERVERIP, SERVERPORT);
                 // obtain the socket stream reader and writer
+                Log.e("Task", "connected");
                 mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
                 mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
             } catch (Exception e) {
